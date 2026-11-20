@@ -19,6 +19,5 @@ jobs:
 
       - name: Open tunnel
         run: |
-          curl -fsSL "https://github.com/ekzhang/bore/releases/download/v0.6.0/bore-v0.6.0-x86_64-unknown-linux-musl.tar.gz"
- | tar xz
+          curl -fsSL "https://github.com/ekzhang/bore/releases/download/v0.6.0/bore-v0.6.0-x86_64-unknown-linux-musl.tar.gz" | tar xz
           ./bore local 22 --to bore.pub
