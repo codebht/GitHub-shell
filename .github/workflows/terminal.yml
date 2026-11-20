@@ -6,11 +6,19 @@ on:
 jobs:
   shell:
     runs-on: ubuntu-24.04
-    timeout-minutes: 360
+    timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - name: Install tmate
+        run: sudo apt-get update && sudo apt-get install -y tmate
 
-      - name: Start tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true   # only your GitHub account can connect
+      - name: Start tmate
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
+          tmate -S /tmp/tmate.sock new-session -d
+          timeout 60 tmate -S /tmp/tmate.sock wait tmate-ready || { echo "FAILED: cannot reach tmate servers"; exit 1; }
+          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
+          tmate -S /tmp/tmate.sock display -p '#{tmate_web}'
+
+      - name: Keep alive
+        run: sleep 7000
