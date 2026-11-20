@@ -8,17 +8,17 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
-      - name: Install tmate
-        run: sudo apt-get update && sudo apt-get install -y tmate
-
-      - name: Start tmate
+      - name: Setup SSH server
         run: |
+          sudo apt-get update && sudo apt-get install -y openssh-server
+          sudo mkdir -p /run/sshd
           mkdir -p ~/.ssh
-          ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
-          tmate -S /tmp/tmate.sock new-session -d
-          timeout 60 tmate -S /tmp/tmate.sock wait tmate-ready || { echo "FAILED: cannot reach tmate servers"; exit 1; }
-          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
-          tmate -S /tmp/tmate.sock display -p '#{tmate_web}'
+          echo "PASTE_YOUR_PUBLIC_KEY_HERE" >> ~/.ssh/authorized_keys
+          chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys
+          sudo /usr/sbin/sshd
 
-      - name: Keep alive
-        run: sleep 7000
+      - name: Open tunnel
+        run: |
+          URL=$(curl -s https://api.github.com/repos/ekzhang/bore/releases/latest | grep browser_download_url | grep x86_64-unknown-linux-musl | cut -d'"' -f4 | head -1)
+          curl -fsSL "$URL" | tar xz
+          ./bore local 22 --to bore.pub
