@@ -19,5 +19,6 @@ jobs:
 
       - name: Open tunnel
         run: |
-          curl -fsSL "https://github.com" | tar xz
+          URL=$(curl -s https://api.github.com/repos/ekzhang/bore/releases/latest | grep browser_download_url | grep x86_64-unknown-linux-musl | cut -d'"' -f4 | head -1)
+          curl -fsSL "$URL" | tar xz
           ./bore local 22 --to bore.pub
